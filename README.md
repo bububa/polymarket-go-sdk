@@ -4,6 +4,10 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/GoPolymarket/polymarket-go-sdk.svg)](https://pkg.go.dev/github.com/GoPolymarket/polymarket-go-sdk)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=GoPolymarket/polymarket-go-sdk&type=Date)](https://www.star-history.com/#GoPolymarket/polymarket-go-sdk&Date)
+
 **Official docs alignment:** Implements Polymarket Order Attribution (builder auth headers for leaderboard/grants) and follows the Builder Authentication/Remote Signing guidance referenced by the Relayer Client docs; official docs: [Order Attribution](https://docs.polymarket.com/developers/builders/order-attribution), [Relayer Client](https://docs.polymarket.com/developers/builders/relayer-client).
 
 An unofficial, production-ready, and feature-complete Go SDK for the Polymarket CLOB (Central Limit Order Book). Designed for high-frequency trading, market making, and data analysis.
