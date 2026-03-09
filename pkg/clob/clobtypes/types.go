@@ -634,85 +634,132 @@ func (p *PricesHistoryResponse) UnmarshalJSON(data []byte) error {
 func (o *OrderResponse) UnmarshalJSON(data []byte) error {
 	trimmed := bytes.TrimSpace(data)
 	if len(trimmed) == 0 || bytes.Equal(trimmed, []byte("null")) {
-		*o = OrderResponse{}
 		return nil
 	}
 
-	var raw struct {
-		OrderID      string          `json:"orderID"`
-		ID           string          `json:"id"`
-		Status       string          `json:"status"`
-		AssetID      string          `json:"asset_id,omitempty"`
-		Market       string          `json:"market,omitempty"`
-		Side         string          `json:"side,omitempty"`
-		Price        string          `json:"price,omitempty"`
-		OriginalSize string          `json:"original_size,omitempty"`
-		SizeMatched  string          `json:"size_matched,omitempty"`
-		Owner        string          `json:"owner,omitempty"`
-		MakerAddress string          `json:"maker_address,omitempty"`
-		OrderType    string          `json:"order_type,omitempty"`
-		Expiration   json.RawMessage `json:"expiration,omitempty"`
-		CreatedAt    json.RawMessage `json:"created_at,omitempty"`
-		Timestamp    json.RawMessage `json:"timestamp,omitempty"`
-		Outcome      string          `json:"outcome,omitempty"`
-	}
+	var raw map[string]json.RawMessage
 	if err := json.Unmarshal(trimmed, &raw); err != nil {
 		return err
 	}
 
-	expiration, err := unmarshalOrderResponseStringLike(raw.Expiration)
-	if err != nil {
-		return fmt.Errorf("expiration: %w", err)
+	next := *o
+
+	if value, ok := raw["orderID"]; ok {
+		if err := unmarshalOrderResponseString(value, &next.ID); err != nil {
+			return fmt.Errorf("orderID: %w", err)
+		}
+	} else if value, ok := raw["id"]; ok {
+		if err := unmarshalOrderResponseString(value, &next.ID); err != nil {
+			return fmt.Errorf("id: %w", err)
+		}
 	}
-	createdAt, err := unmarshalOrderResponseStringLike(raw.CreatedAt)
-	if err != nil {
-		return fmt.Errorf("created_at: %w", err)
+	if value, ok := raw["status"]; ok {
+		if err := unmarshalOrderResponseString(value, &next.Status); err != nil {
+			return fmt.Errorf("status: %w", err)
+		}
 	}
-	timestamp, err := unmarshalOrderResponseStringLike(raw.Timestamp)
-	if err != nil {
-		return fmt.Errorf("timestamp: %w", err)
+	if value, ok := raw["asset_id"]; ok {
+		if err := unmarshalOrderResponseString(value, &next.AssetID); err != nil {
+			return fmt.Errorf("asset_id: %w", err)
+		}
+	}
+	if value, ok := raw["market"]; ok {
+		if err := unmarshalOrderResponseString(value, &next.Market); err != nil {
+			return fmt.Errorf("market: %w", err)
+		}
+	}
+	if value, ok := raw["side"]; ok {
+		if err := unmarshalOrderResponseString(value, &next.Side); err != nil {
+			return fmt.Errorf("side: %w", err)
+		}
+	}
+	if value, ok := raw["price"]; ok {
+		if err := unmarshalOrderResponseString(value, &next.Price); err != nil {
+			return fmt.Errorf("price: %w", err)
+		}
+	}
+	if value, ok := raw["original_size"]; ok {
+		if err := unmarshalOrderResponseString(value, &next.OriginalSize); err != nil {
+			return fmt.Errorf("original_size: %w", err)
+		}
+	}
+	if value, ok := raw["size_matched"]; ok {
+		if err := unmarshalOrderResponseString(value, &next.SizeMatched); err != nil {
+			return fmt.Errorf("size_matched: %w", err)
+		}
+	}
+	if value, ok := raw["owner"]; ok {
+		if err := unmarshalOrderResponseString(value, &next.Owner); err != nil {
+			return fmt.Errorf("owner: %w", err)
+		}
+	}
+	if value, ok := raw["maker_address"]; ok {
+		if err := unmarshalOrderResponseString(value, &next.MakerAddress); err != nil {
+			return fmt.Errorf("maker_address: %w", err)
+		}
+	}
+	if value, ok := raw["order_type"]; ok {
+		if err := unmarshalOrderResponseString(value, &next.OrderType); err != nil {
+			return fmt.Errorf("order_type: %w", err)
+		}
+	}
+	if value, ok := raw["expiration"]; ok {
+		if err := unmarshalOrderResponseStringLike(value, &next.Expiration); err != nil {
+			return fmt.Errorf("expiration: %w", err)
+		}
+	}
+	if value, ok := raw["created_at"]; ok {
+		if err := unmarshalOrderResponseStringLike(value, &next.CreatedAt); err != nil {
+			return fmt.Errorf("created_at: %w", err)
+		}
+	}
+	if value, ok := raw["timestamp"]; ok {
+		if err := unmarshalOrderResponseStringLike(value, &next.Timestamp); err != nil {
+			return fmt.Errorf("timestamp: %w", err)
+		}
+	}
+	if value, ok := raw["outcome"]; ok {
+		if err := unmarshalOrderResponseString(value, &next.Outcome); err != nil {
+			return fmt.Errorf("outcome: %w", err)
+		}
 	}
 
-	id := raw.OrderID
-	if id == "" {
-		id = raw.ID
-	}
-
-	*o = OrderResponse{
-		ID:           id,
-		Status:       raw.Status,
-		AssetID:      raw.AssetID,
-		Market:       raw.Market,
-		Side:         raw.Side,
-		Price:        raw.Price,
-		OriginalSize: raw.OriginalSize,
-		SizeMatched:  raw.SizeMatched,
-		Owner:        raw.Owner,
-		MakerAddress: raw.MakerAddress,
-		OrderType:    raw.OrderType,
-		Expiration:   expiration,
-		CreatedAt:    createdAt,
-		Timestamp:    timestamp,
-		Outcome:      raw.Outcome,
-	}
+	*o = next
 	return nil
 }
 
-func unmarshalOrderResponseStringLike(data json.RawMessage) (string, error) {
+func unmarshalOrderResponseString(data json.RawMessage, dest *string) error {
 	trimmed := bytes.TrimSpace(data)
 	if len(trimmed) == 0 || bytes.Equal(trimmed, []byte("null")) {
-		return "", nil
+		return nil
+	}
+
+	var value string
+	if err := json.Unmarshal(trimmed, &value); err != nil {
+		return err
+	}
+
+	*dest = value
+	return nil
+}
+
+func unmarshalOrderResponseStringLike(data json.RawMessage, dest *string) error {
+	trimmed := bytes.TrimSpace(data)
+	if len(trimmed) == 0 || bytes.Equal(trimmed, []byte("null")) {
+		return nil
 	}
 
 	var value string
 	if err := json.Unmarshal(trimmed, &value); err == nil {
-		return value, nil
+		*dest = value
+		return nil
 	}
 
 	var number json.Number
 	if err := json.Unmarshal(trimmed, &number); err == nil {
-		return number.String(), nil
+		*dest = number.String()
+		return nil
 	}
 
-	return "", fmt.Errorf("expected string or number, got %s", string(trimmed))
+	return fmt.Errorf("expected string or number, got %s", string(trimmed))
 }

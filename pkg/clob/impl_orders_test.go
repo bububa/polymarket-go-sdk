@@ -129,8 +129,11 @@ func TestOrderManagementMethods(t *testing.T) {
 			httpClient: transport.NewClient(doer, "http://example"),
 		}
 		resp, err := client.Orders(ctx, nil)
-		if err != nil || len(resp.Data) == 0 {
-			t.Errorf("Orders list failed: %v", err)
+		if err != nil {
+			t.Fatalf("Orders list failed: %v", err)
+		}
+		if len(resp.Data) == 0 {
+			t.Fatal("Orders list returned no data")
 		}
 		if resp.Data[0].ID != "o1" {
 			t.Errorf("Orders list ID = %s, want o1", resp.Data[0].ID)
