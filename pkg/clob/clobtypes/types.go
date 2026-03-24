@@ -328,21 +328,26 @@ type (
 	}
 	PricesHistoryResponse []PriceHistoryPoint
 	OrderResponse         struct {
-		ID           string `json:"orderID"`
-		Status       string `json:"status"`
-		AssetID      string `json:"asset_id,omitempty"`
-		Market       string `json:"market,omitempty"`
-		Side         string `json:"side,omitempty"`
-		Price        string `json:"price,omitempty"`
-		OriginalSize string `json:"original_size,omitempty"`
-		SizeMatched  string `json:"size_matched,omitempty"`
-		Owner        string `json:"owner,omitempty"`
-		MakerAddress string `json:"maker_address,omitempty"`
-		OrderType    string `json:"order_type,omitempty"`
-		Expiration   string `json:"expiration,omitempty"`
-		CreatedAt    string `json:"created_at,omitempty"`
-		Timestamp    string `json:"timestamp,omitempty"`
-		Outcome      string `json:"outcome,omitempty"`
+		ID                string   `json:"orderID"`
+		Status            string   `json:"status"`
+		MakingAmount      string   `json:"makingAmount,omitempty"`
+		TakingAmount      string   `json:"takingAmount,omitempty"`
+		TransactionHashes []string `json:"transactionsHashes,omitempty"`
+		TradeIDs          []string `json:"tradeIDs,omitempty"`
+		AssetID           string   `json:"asset_id,omitempty"`
+		Market            string   `json:"market,omitempty"`
+		Side              string   `json:"side,omitempty"`
+		Price             string   `json:"price,omitempty"`
+		OriginalSize      string   `json:"original_size,omitempty"`
+		SizeMatched       string   `json:"size_matched,omitempty"`
+		Owner             string   `json:"owner,omitempty"`
+		MakerAddress      string   `json:"maker_address,omitempty"`
+		OrderType         string   `json:"order_type,omitempty"`
+		Expiration        string   `json:"expiration,omitempty"`
+		CreatedAt         string   `json:"created_at,omitempty"`
+		Timestamp         string   `json:"timestamp,omitempty"`
+		Outcome           string   `json:"outcome,omitempty"`
+		ErrorMsg          string   `json:"errorMsg,omitempty"`
 	}
 	PostOrdersResponse []OrderResponse
 	OrdersResponse     struct {
