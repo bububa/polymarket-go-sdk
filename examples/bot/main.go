@@ -84,7 +84,7 @@ func runBot(ctx context.Context, client clob.Client) {
 	}
 	fmt.Printf("Balance: %s\n", bal.Balance)
 
-	orders, err := client.Orders(ctx, &clobtypes.OrdersRequest{Limit: 5})
+	orders, err := client.Orders(ctx, &clobtypes.OrdersRequest{})
 	if err != nil {
 		log.Printf("Failed to get orders: %v", err)
 		return

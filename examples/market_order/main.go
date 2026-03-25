@@ -1,16 +1,16 @@
 package main
 
 import (
-	"github.com/GoPolymarket/polymarket-go-sdk/pkg/clob/clobtypes"
 	"context"
 	"fmt"
 	"log"
 	"os"
 
+	"github.com/GoPolymarket/polymarket-go-sdk/pkg/clob/clobtypes"
+
 	polymarket "github.com/GoPolymarket/polymarket-go-sdk"
 	"github.com/GoPolymarket/polymarket-go-sdk/pkg/auth"
 	"github.com/GoPolymarket/polymarket-go-sdk/pkg/clob"
-	
 )
 
 func main() {
@@ -48,5 +48,5 @@ func main() {
 		log.Printf("Order creation returned error (expected in demo): %v", err)
 		return
 	}
-	fmt.Printf("Order Created! ID: %s\n", resp.ID)
+	fmt.Printf("Order Created! ID: %s\n", resp.OrderID)
 }

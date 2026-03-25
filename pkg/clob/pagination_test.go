@@ -13,7 +13,7 @@ func TestOrdersAllPagination(t *testing.T) {
 	doer := &staticDoer{
 		responses: map[string]string{
 			buildKey("/data/orders", url.Values{"limit": {"1"}, "next_cursor": {clobtypes.InitialCursor}}): `{"data":[{"id":"1"}],"next_cursor":"NEXT"}`,
-			buildKey("/data/orders", url.Values{"limit": {"1"}, "next_cursor": {"NEXT"}}):        `{"data":[{"id":"2"}],"next_cursor":"LTE="}`,
+			buildKey("/data/orders", url.Values{"limit": {"1"}, "next_cursor": {"NEXT"}}):                  `{"data":[{"id":"2"}],"next_cursor":"LTE="}`,
 		},
 	}
 	client := &clientImpl{
@@ -21,7 +21,7 @@ func TestOrdersAllPagination(t *testing.T) {
 		cache:      newClientCache(),
 	}
 
-	results, err := client.OrdersAll(context.Background(), &clobtypes.OrdersRequest{Limit: 1})
+	results, err := client.OrdersAll(context.Background(), &clobtypes.OrdersRequest{})
 	if err != nil {
 		t.Fatalf("OrdersAll failed: %v", err)
 	}
@@ -34,7 +34,7 @@ func TestTradesAllPagination(t *testing.T) {
 	doer := &staticDoer{
 		responses: map[string]string{
 			buildKey("/data/trades", url.Values{"limit": {"1"}, "next_cursor": {clobtypes.InitialCursor}}): `{"data":[{"id":"1"}],"next_cursor":"NEXT"}`,
-			buildKey("/data/trades", url.Values{"limit": {"1"}, "next_cursor": {"NEXT"}}):        `{"data":[{"id":"2"}],"next_cursor":"LTE="}`,
+			buildKey("/data/trades", url.Values{"limit": {"1"}, "next_cursor": {"NEXT"}}):                  `{"data":[{"id":"2"}],"next_cursor":"LTE="}`,
 		},
 	}
 	client := &clientImpl{
@@ -42,7 +42,7 @@ func TestTradesAllPagination(t *testing.T) {
 		cache:      newClientCache(),
 	}
 
-	results, err := client.TradesAll(context.Background(), &clobtypes.TradesRequest{Limit: 1})
+	results, err := client.TradesAll(context.Background(), &clobtypes.TradesRequest{})
 	if err != nil {
 		t.Fatalf("TradesAll failed: %v", err)
 	}
@@ -55,7 +55,7 @@ func TestBuilderTradesAllPagination(t *testing.T) {
 	doer := &staticDoer{
 		responses: map[string]string{
 			buildKey("/builder/trades", url.Values{"limit": {"1"}, "next_cursor": {clobtypes.InitialCursor}}): `{"data":[{"id":"1"}],"next_cursor":"NEXT"}`,
-			buildKey("/builder/trades", url.Values{"limit": {"1"}, "next_cursor": {"NEXT"}}):        `{"data":[{"id":"2"}],"next_cursor":"LTE="}`,
+			buildKey("/builder/trades", url.Values{"limit": {"1"}, "next_cursor": {"NEXT"}}):                  `{"data":[{"id":"2"}],"next_cursor":"LTE="}`,
 		},
 	}
 	client := &clientImpl{
@@ -63,7 +63,7 @@ func TestBuilderTradesAllPagination(t *testing.T) {
 		cache:      newClientCache(),
 	}
 
-	results, err := client.BuilderTradesAll(context.Background(), &clobtypes.BuilderTradesRequest{Limit: 1})
+	results, err := client.BuilderTradesAll(context.Background(), &clobtypes.BuilderTradesRequest{})
 	if err != nil {
 		t.Fatalf("BuilderTradesAll failed: %v", err)
 	}

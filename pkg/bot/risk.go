@@ -21,7 +21,7 @@ func (e *Engine) EvaluateRisk(ctx context.Context) (RiskSnapshot, error) {
 	ctx, cancel := context.WithTimeout(ctx, e.cfg.RequestTimeout)
 	defer cancel()
 
-	orders, err := e.client.Orders(ctx, &clobtypes.OrdersRequest{Limit: 200})
+	orders, err := e.client.Orders(ctx, &clobtypes.OrdersRequest{})
 	if err != nil {
 		return RiskSnapshot{}, fmt.Errorf("orders query failed: %w", err)
 	}

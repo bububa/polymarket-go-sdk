@@ -198,17 +198,13 @@ func runAccountExamples(ctx context.Context, client *polymarket.Client) error {
 	}
 	fmt.Printf("1. Balance: %s\n", bal.Balance)
 
-	orders, err := authClient.Orders(ctx, &clobtypes.OrdersRequest{
-		Limit: 5,
-	})
+	orders, err := authClient.Orders(ctx, &clobtypes.OrdersRequest{})
 	if err != nil {
 		return fmt.Errorf("get orders failed: %w", err)
 	}
 	fmt.Printf("2. Open orders: %d\n", len(orders.Data))
 
-	trades, err := authClient.Trades(ctx, &clobtypes.TradesRequest{
-		Limit: 5,
-	})
+	trades, err := authClient.Trades(ctx, &clobtypes.TradesRequest{})
 	if err != nil {
 		return fmt.Errorf("get trades failed: %w", err)
 	}

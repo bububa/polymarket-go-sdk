@@ -91,12 +91,12 @@ func (e *Engine) BuildTradePlan(op Opportunity) (*TradePlan, error) {
 	return plan, nil
 }
 
-func (e *Engine) ExecutePlan(ctx context.Context, plan *TradePlan) (clobtypes.OrderResponse, error) {
+func (e *Engine) ExecutePlan(ctx context.Context, plan *TradePlan) (clobtypes.PostOrderResponse, error) {
 	if plan == nil {
-		return clobtypes.OrderResponse{}, fmt.Errorf("plan is required")
+		return clobtypes.PostOrderResponse{}, fmt.Errorf("plan is required")
 	}
 	if e.cfg.DryRun || !e.cfg.AllowExecution {
-		return clobtypes.OrderResponse{}, fmt.Errorf("execution disabled (dry-run=%t allow-execution=%t)", e.cfg.DryRun, e.cfg.AllowExecution)
+		return clobtypes.PostOrderResponse{}, fmt.Errorf("execution disabled (dry-run=%t allow-execution=%t)", e.cfg.DryRun, e.cfg.AllowExecution)
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, e.cfg.RequestTimeout)
@@ -111,7 +111,7 @@ func (e *Engine) ExecutePlan(ctx context.Context, plan *TradePlan) (clobtypes.Or
 
 	signable, err := builder.BuildMarketWithContext(ctx)
 	if err != nil {
-		return clobtypes.OrderResponse{}, fmt.Errorf("build market order failed: %w", err)
+		return clobtypes.PostOrderResponse{}, fmt.Errorf("build market order failed: %w", err)
 	}
 
 	return e.client.CreateOrderFromSignable(ctx, signable)

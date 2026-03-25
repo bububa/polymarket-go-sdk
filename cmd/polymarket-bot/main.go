@@ -118,7 +118,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("execute failed: %v", err)
 	}
-	fmt.Printf("Order submitted: id=%s status=%s\n", resp.ID, resp.Status)
+	fmt.Printf("Order submitted: id=%s status=%s\n", resp.OrderID, resp.Status)
 }
 
 func confirm(prompt string) bool {

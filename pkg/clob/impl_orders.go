@@ -19,14 +19,14 @@ import (
 
 // CreateOrder builds and signs an order, then posts it to the CLOB.
 // This is a higher-level helper that combines signing and posting.
-func (c *clientImpl) CreateOrder(ctx context.Context, order *clobtypes.Order) (clobtypes.OrderResponse, error) {
+func (c *clientImpl) CreateOrder(ctx context.Context, order *clobtypes.Order) (clobtypes.PostOrderResponse, error) {
 	return c.CreateOrderWithOptions(ctx, order, nil)
 }
 
-func (c *clientImpl) CreateOrderWithOptions(ctx context.Context, order *clobtypes.Order, opts *clobtypes.OrderOptions) (clobtypes.OrderResponse, error) {
+func (c *clientImpl) CreateOrderWithOptions(ctx context.Context, order *clobtypes.Order, opts *clobtypes.OrderOptions) (clobtypes.PostOrderResponse, error) {
 	signed, err := c.signOrder(order)
 	if err != nil {
-		return clobtypes.OrderResponse{}, err
+		return clobtypes.PostOrderResponse{}, err
 	}
 	if opts != nil {
 		signed.OrderType = opts.OrderType
@@ -36,9 +36,9 @@ func (c *clientImpl) CreateOrderWithOptions(ctx context.Context, order *clobtype
 	return c.PostOrder(ctx, signed)
 }
 
-func (c *clientImpl) CreateOrderFromSignable(ctx context.Context, order *clobtypes.SignableOrder) (clobtypes.OrderResponse, error) {
+func (c *clientImpl) CreateOrderFromSignable(ctx context.Context, order *clobtypes.SignableOrder) (clobtypes.PostOrderResponse, error) {
 	if order == nil || order.Order == nil {
-		return clobtypes.OrderResponse{}, fmt.Errorf("order is required")
+		return clobtypes.PostOrderResponse{}, fmt.Errorf("order is required")
 	}
 	opts := &clobtypes.OrderOptions{
 		OrderType: order.OrderType,
@@ -180,8 +180,8 @@ func signOrderWithCreds(signer auth.Signer, apiKey *auth.APIKey, order *clobtype
 	}, nil
 }
 
-func (c *clientImpl) PostOrder(ctx context.Context, req *clobtypes.SignedOrder) (clobtypes.OrderResponse, error) {
-	var resp clobtypes.OrderResponse
+func (c *clientImpl) PostOrder(ctx context.Context, req *clobtypes.SignedOrder) (clobtypes.PostOrderResponse, error) {
+	var resp clobtypes.PostOrderResponse
 	payload, err := buildOrderPayload(req)
 	if err != nil {
 		return resp, err
@@ -257,9 +257,9 @@ func (c *clientImpl) CancelMarketOrders(ctx context.Context, req *clobtypes.Canc
 	return resp, mapError(err)
 }
 
-func (c *clientImpl) Order(ctx context.Context, id string) (clobtypes.OrderResponse, error) {
-	var resp clobtypes.OrderResponse
-	err := c.httpClient.Get(ctx, fmt.Sprintf("/data/order/%s", id), nil, &resp)
+func (c *clientImpl) Order(ctx context.Context, id string) (clobtypes.OrderInfo, error) {
+	var resp clobtypes.OrderInfo
+	err := c.httpClient.Get(ctx, fmt.Sprintf("/order/%s", id), nil, &resp)
 	return resp, mapError(err)
 }
 
@@ -275,19 +275,12 @@ func (c *clientImpl) Orders(ctx context.Context, req *clobtypes.OrdersRequest) (
 		if req.AssetID != "" {
 			q.Set("asset_id", req.AssetID)
 		}
-		if req.Limit > 0 {
-			q.Set("limit", strconv.Itoa(req.Limit))
-		}
-		nextCursor := req.NextCursor
-		if nextCursor == "" {
-			nextCursor = req.Cursor
-		}
-		if nextCursor != "" {
-			q.Set("next_cursor", nextCursor)
+		if req.NextCursor != "" {
+			q.Set("next_cursor", req.NextCursor)
 		}
 	}
 	var resp clobtypes.OrdersResponse
-	err := c.httpClient.Get(ctx, "/data/orders", q, &resp)
+	err := c.httpClient.Get(ctx, "/orders", q, &resp)
 	return resp, mapError(err)
 }
 
@@ -297,11 +290,8 @@ func (c *clientImpl) Trades(ctx context.Context, req *clobtypes.TradesRequest) (
 		if req.ID != "" {
 			q.Set("id", req.ID)
 		}
-		if req.Taker != "" {
-			q.Set("taker", req.Taker)
-		}
-		if req.Maker != "" {
-			q.Set("maker", req.Maker)
+		if req.MakerAddress != "" {
+			q.Set("maker_address", req.MakerAddress)
 		}
 		if req.Market != "" {
 			q.Set("market", req.Market)
@@ -315,30 +305,21 @@ func (c *clientImpl) Trades(ctx context.Context, req *clobtypes.TradesRequest) (
 		if req.After > 0 {
 			q.Set("after", strconv.FormatInt(req.After, 10))
 		}
-		if req.Limit > 0 {
-			q.Set("limit", strconv.Itoa(req.Limit))
-		}
-		nextCursor := req.NextCursor
-		if nextCursor == "" {
-			nextCursor = req.Cursor
-		}
-		if nextCursor != "" {
-			q.Set("next_cursor", nextCursor)
+		if req.NextCursor != "" {
+			q.Set("next_cursor", req.NextCursor)
 		}
 	}
 	var resp clobtypes.TradesResponse
-	err := c.httpClient.Get(ctx, "/data/trades", q, &resp)
+	err := c.httpClient.Get(ctx, "/trades", q, &resp)
 	return resp, mapError(err)
 }
 
-func (c *clientImpl) OrdersAll(ctx context.Context, req *clobtypes.OrdersRequest) ([]clobtypes.OrderResponse, error) {
-	var results []clobtypes.OrderResponse
+func (c *clientImpl) OrdersAll(ctx context.Context, req *clobtypes.OrdersRequest) ([]clobtypes.OrderInfo, error) {
+	var results []clobtypes.OrderInfo
 	cursor := clobtypes.InitialCursor
 	if req != nil {
 		if req.NextCursor != "" {
 			cursor = req.NextCursor
-		} else if req.Cursor != "" {
-			cursor = req.Cursor
 		}
 	}
 	if cursor == "" {
@@ -373,8 +354,6 @@ func (c *clientImpl) TradesAll(ctx context.Context, req *clobtypes.TradesRequest
 	if req != nil {
 		if req.NextCursor != "" {
 			cursor = req.NextCursor
-		} else if req.Cursor != "" {
-			cursor = req.Cursor
 		}
 	}
 	if cursor == "" {
@@ -409,8 +388,6 @@ func (c *clientImpl) BuilderTradesAll(ctx context.Context, req *clobtypes.Builde
 	if req != nil {
 		if req.NextCursor != "" {
 			cursor = req.NextCursor
-		} else if req.Cursor != "" {
-			cursor = req.Cursor
 		}
 	}
 	if cursor == "" {
@@ -465,8 +442,8 @@ func (c *clientImpl) BuilderTrades(ctx context.Context, req *clobtypes.BuilderTr
 		if req.ID != "" {
 			q.Set("id", req.ID)
 		}
-		if req.Maker != "" {
-			q.Set("maker", req.Maker)
+		if req.Builder != "" {
+			q.Set("builder", req.Builder)
 		}
 		if req.Market != "" {
 			q.Set("market", req.Market)
@@ -480,15 +457,8 @@ func (c *clientImpl) BuilderTrades(ctx context.Context, req *clobtypes.BuilderTr
 		if req.After > 0 {
 			q.Set("after", strconv.FormatInt(req.After, 10))
 		}
-		if req.Limit > 0 {
-			q.Set("limit", strconv.Itoa(req.Limit))
-		}
-		nextCursor := req.NextCursor
-		if nextCursor == "" {
-			nextCursor = req.Cursor
-		}
-		if nextCursor != "" {
-			q.Set("next_cursor", nextCursor)
+		if req.NextCursor != "" {
+			q.Set("next_cursor", req.NextCursor)
 		}
 	}
 	var resp clobtypes.BuilderTradesResponse

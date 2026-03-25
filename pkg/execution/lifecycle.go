@@ -61,7 +61,7 @@ func NewCreatedEvent(orderID string, at time.Time, source LifecycleSource) (Life
 }
 
 // EventFromOrderResponse converts upstream order status to the unified lifecycle state.
-func EventFromOrderResponse(order clobtypes.OrderResponse, source LifecycleSource) (LifecycleEvent, error) {
+func EventFromOrderResponse(order clobtypes.OrderInfo, source LifecycleSource) (LifecycleEvent, error) {
 	id := strings.TrimSpace(order.ID)
 	if id == "" {
 		return LifecycleEvent{}, errLifecycleOrderIDRequired

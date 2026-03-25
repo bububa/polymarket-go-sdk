@@ -38,7 +38,7 @@ type PlaceRequest struct {
 
 // PlaceResponse returns upstream order details after submission.
 type PlaceResponse struct {
-	Order       clobtypes.OrderResponse
+	Order       clobtypes.PostOrderResponse
 	Attribution Attribution
 }
 
@@ -62,7 +62,7 @@ type QueryRequest struct {
 
 // QueryResponse returns current upstream order state.
 type QueryResponse struct {
-	Order       clobtypes.OrderResponse
+	Order       clobtypes.OrderInfo
 	Attribution Attribution
 }
 
@@ -76,7 +76,7 @@ type ReplayRequest struct {
 
 // ReplayResponse returns replay pages and cursor.
 type ReplayResponse struct {
-	Orders      []clobtypes.OrderResponse
+	Orders      []clobtypes.OrderInfo
 	NextCursor  string
 	Count       int
 	Limit       int
@@ -84,9 +84,9 @@ type ReplayResponse struct {
 }
 
 type clobExecutionClient interface {
-	CreateOrder(ctx context.Context, order *clobtypes.Order) (clobtypes.OrderResponse, error)
+	CreateOrder(ctx context.Context, order *clobtypes.Order) (clobtypes.PostOrderResponse, error)
 	CancelOrder(ctx context.Context, req *clobtypes.CancelOrderRequest) (clobtypes.CancelResponse, error)
-	Order(ctx context.Context, id string) (clobtypes.OrderResponse, error)
+	Order(ctx context.Context, id string) (clobtypes.OrderInfo, error)
 	Orders(ctx context.Context, req *clobtypes.OrdersRequest) (clobtypes.OrdersResponse, error)
 }
 
@@ -155,9 +155,8 @@ func (e *CLOBEngine) Replay(ctx context.Context, req ReplayRequest) (ReplayRespo
 	attr := NormalizeAttribution(req.Attribution)
 
 	resp, err := e.client.Orders(ctx, &clobtypes.OrdersRequest{
-		Market: strings.TrimSpace(req.Market),
-		Cursor: strings.TrimSpace(req.Cursor),
-		Limit:  limit,
+		Market:     strings.TrimSpace(req.Market),
+		NextCursor: strings.TrimSpace(req.Cursor),
 	})
 	if err != nil {
 		return ReplayResponse{}, err

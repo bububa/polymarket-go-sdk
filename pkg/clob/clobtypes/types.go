@@ -164,21 +164,16 @@ type (
 		ID         string `json:"id,omitempty"`
 		Market     string `json:"market,omitempty"`
 		AssetID    string `json:"asset_id,omitempty"`
-		Limit      int    `json:"limit,omitempty"`
-		Cursor     string `json:"cursor,omitempty"`
 		NextCursor string `json:"next_cursor,omitempty"`
 	}
 	TradesRequest struct {
-		ID         string `json:"id,omitempty"`
-		Taker      string `json:"taker,omitempty"`
-		Maker      string `json:"maker,omitempty"`
-		Market     string `json:"market,omitempty"`
-		AssetID    string `json:"asset_id,omitempty"`
-		Before     int64  `json:"before,omitempty"`
-		After      int64  `json:"after,omitempty"`
-		Limit      int    `json:"limit,omitempty"`
-		Cursor     string `json:"cursor,omitempty"`
-		NextCursor string `json:"next_cursor,omitempty"`
+		ID           string `json:"id,omitempty"`
+		MakerAddress string `json:"maker_address,omitempty"`
+		Market       string `json:"market,omitempty"`
+		AssetID      string `json:"asset_id,omitempty"`
+		Before       int64  `json:"before,omitempty"`
+		After        int64  `json:"after,omitempty"`
+		NextCursor   string `json:"next_cursor,omitempty"`
 	}
 	OrderScoringRequest struct {
 		ID string `json:"id"`
@@ -262,13 +257,11 @@ type (
 	}
 	BuilderTradesRequest struct {
 		ID         string `json:"id,omitempty"`
-		Maker      string `json:"maker,omitempty"`
+		Builder    string `json:"builder,omitempty"`
 		Market     string `json:"market,omitempty"`
 		AssetID    string `json:"asset_id,omitempty"`
 		Before     int64  `json:"before,omitempty"`
 		After      int64  `json:"after,omitempty"`
-		Limit      int    `json:"limit,omitempty"`
-		Cursor     string `json:"cursor,omitempty"`
 		NextCursor string `json:"next_cursor,omitempty"`
 	}
 )
@@ -327,34 +320,39 @@ type (
 		Region  string `json:"region"`
 	}
 	PricesHistoryResponse []PriceHistoryPoint
-	OrderResponse         struct {
-		ID                string   `json:"orderID"`
+	OrderInfo             struct {
+		ID              string   `json:"info"`
+		Status          string   `json:"status"`
+		Owner           string   `json:"owner,omitempty"`
+		MakerAddress    string   `json:"maker_address,omitempty"`
+		Market          string   `json:"market,omitempty"`
+		AssetID         string   `json:"asset_id,omitempty"`
+		Side            string   `json:"side,omitempty"`
+		OriginalSize    string   `json:"original_size,omitempty"`
+		SizeMatched     string   `json:"size_matched,omitempty"`
+		Price           string   `json:"price,omitempty"`
+		Outcome         string   `json:"outcome,omitempty"`
+		Expiration      string   `json:"expiration,omitempty"`
+		OrderType       string   `json:"order_type,omitempty"`
+		CreatedAt       string   `json:"created_at,omitempty"`
+		AssociateTrades []string `json:"associate_trades,omitempty"`
+	}
+	PostOrderResponse struct {
+		Success           bool     `json:"success"`
+		OrderID           string   `json:"orderID"`
 		Status            string   `json:"status"`
 		MakingAmount      string   `json:"makingAmount,omitempty"`
 		TakingAmount      string   `json:"takingAmount,omitempty"`
 		TransactionHashes []string `json:"transactionsHashes,omitempty"`
 		TradeIDs          []string `json:"tradeIDs,omitempty"`
-		AssetID           string   `json:"asset_id,omitempty"`
-		Market            string   `json:"market,omitempty"`
-		Side              string   `json:"side,omitempty"`
-		Price             string   `json:"price,omitempty"`
-		OriginalSize      string   `json:"original_size,omitempty"`
-		SizeMatched       string   `json:"size_matched,omitempty"`
-		Owner             string   `json:"owner,omitempty"`
-		MakerAddress      string   `json:"maker_address,omitempty"`
-		OrderType         string   `json:"order_type,omitempty"`
-		Expiration        string   `json:"expiration,omitempty"`
-		CreatedAt         string   `json:"created_at,omitempty"`
-		Timestamp         string   `json:"timestamp,omitempty"`
-		Outcome           string   `json:"outcome,omitempty"`
 		ErrorMsg          string   `json:"errorMsg,omitempty"`
 	}
-	PostOrdersResponse []OrderResponse
+	PostOrdersResponse []PostOrderResponse
 	OrdersResponse     struct {
-		Data       []OrderResponse `json:"data"`
-		NextCursor string          `json:"next_cursor"`
-		Limit      int             `json:"limit"`
-		Count      int             `json:"count"`
+		Data       []OrderInfo `json:"data"`
+		NextCursor string      `json:"next_cursor"`
+		Limit      int         `json:"limit"`
+		Count      int         `json:"count"`
 	}
 	CancelResponse struct {
 		Status string `json:"status"`
@@ -500,21 +498,26 @@ type (
 	}
 
 	Trade struct {
-		ID              string `json:"id"`
-		Price           string `json:"price"`
-		Size            string `json:"size"`
-		Side            string `json:"side"`
-		Timestamp       int64  `json:"timestamp"`
-		Market          string `json:"market,omitempty"`
-		AssetID         string `json:"asset_id,omitempty"`
-		Status          string `json:"status,omitempty"`
-		TakerOrderID    string `json:"taker_order_id,omitempty"`
-		MakerOrderID    string `json:"maker_order_id,omitempty"`
-		Owner           string `json:"owner,omitempty"`
-		MakerAddress    string `json:"maker_address,omitempty"`
-		MatchTime       string `json:"match_time,omitempty"`
-		FeeRateBps      string `json:"fee_rate_bps,omitempty"`
-		TransactionHash string `json:"transaction_hash,omitempty"`
+		ID              string  `json:"id"`
+		TakerOrderID    string  `json:"taker_order_id,omitempty"`
+		Market          string  `json:"market,omitempty"`
+		AssetID         string  `json:"asset_id,omitempty"`
+		Side            string  `json:"side"`
+		Size            string  `json:"size"`
+		Price           string  `json:"price"`
+		Status          string  `json:"status,omitempty"`
+		MatchTime       string  `json:"match_time,omitempty"`
+		LastUpdate      string  `json:"last_update,omitempty"`
+		Outcome         string  `json:"outcome,omitempty"`
+		BucketIndex     int     `json:"bucket_index,omitempty"`
+		Owner           string  `json:"owner,omitempty"`
+		MakerAddress    string  `json:"maker_address,omitempty"`
+		TraderSide      string  `json:"trader_side,omitempty"`
+		FeeRateBps      string  `json:"fee_rate_bps,omitempty"`
+		MatchTimeNano   string  `json:"match_time_nano,omitempty"`
+		TransactionHash string  `json:"transaction_hash,omitempty"`
+		ErrMsg          string  `json:"err_msg,omitempty"`
+		MakerOrders     []Order `json:"maker_orders,omitempty"`
 	}
 
 	Notification struct {
@@ -662,105 +665,6 @@ func (p *PricesHistoryResponse) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 	*p = nil
-	return nil
-}
-
-// OrderResponse supports both `orderID` and `id`, and accepts either JSON
-// strings or numbers for time-like fields returned by the upstream API.
-func (o *OrderResponse) UnmarshalJSON(data []byte) error {
-	trimmed := bytes.TrimSpace(data)
-	if len(trimmed) == 0 || bytes.Equal(trimmed, []byte("null")) {
-		return nil
-	}
-
-	var raw map[string]json.RawMessage
-	if err := json.Unmarshal(trimmed, &raw); err != nil {
-		return err
-	}
-
-	next := *o
-
-	if value, ok := raw["orderID"]; ok {
-		if err := unmarshalOrderResponseString(value, &next.ID); err != nil {
-			return fmt.Errorf("orderID: %w", err)
-		}
-	} else if value, ok := raw["id"]; ok {
-		if err := unmarshalOrderResponseString(value, &next.ID); err != nil {
-			return fmt.Errorf("id: %w", err)
-		}
-	}
-	if value, ok := raw["status"]; ok {
-		if err := unmarshalOrderResponseString(value, &next.Status); err != nil {
-			return fmt.Errorf("status: %w", err)
-		}
-	}
-	if value, ok := raw["asset_id"]; ok {
-		if err := unmarshalOrderResponseString(value, &next.AssetID); err != nil {
-			return fmt.Errorf("asset_id: %w", err)
-		}
-	}
-	if value, ok := raw["market"]; ok {
-		if err := unmarshalOrderResponseString(value, &next.Market); err != nil {
-			return fmt.Errorf("market: %w", err)
-		}
-	}
-	if value, ok := raw["side"]; ok {
-		if err := unmarshalOrderResponseString(value, &next.Side); err != nil {
-			return fmt.Errorf("side: %w", err)
-		}
-	}
-	if value, ok := raw["price"]; ok {
-		if err := unmarshalOrderResponseString(value, &next.Price); err != nil {
-			return fmt.Errorf("price: %w", err)
-		}
-	}
-	if value, ok := raw["original_size"]; ok {
-		if err := unmarshalOrderResponseString(value, &next.OriginalSize); err != nil {
-			return fmt.Errorf("original_size: %w", err)
-		}
-	}
-	if value, ok := raw["size_matched"]; ok {
-		if err := unmarshalOrderResponseString(value, &next.SizeMatched); err != nil {
-			return fmt.Errorf("size_matched: %w", err)
-		}
-	}
-	if value, ok := raw["owner"]; ok {
-		if err := unmarshalOrderResponseString(value, &next.Owner); err != nil {
-			return fmt.Errorf("owner: %w", err)
-		}
-	}
-	if value, ok := raw["maker_address"]; ok {
-		if err := unmarshalOrderResponseString(value, &next.MakerAddress); err != nil {
-			return fmt.Errorf("maker_address: %w", err)
-		}
-	}
-	if value, ok := raw["order_type"]; ok {
-		if err := unmarshalOrderResponseString(value, &next.OrderType); err != nil {
-			return fmt.Errorf("order_type: %w", err)
-		}
-	}
-	if value, ok := raw["expiration"]; ok {
-		if err := unmarshalOrderResponseStringLike(value, &next.Expiration); err != nil {
-			return fmt.Errorf("expiration: %w", err)
-		}
-	}
-	if value, ok := raw["created_at"]; ok {
-		if err := unmarshalOrderResponseStringLike(value, &next.CreatedAt); err != nil {
-			return fmt.Errorf("created_at: %w", err)
-		}
-	}
-	if value, ok := raw["timestamp"]; ok {
-		if err := unmarshalOrderResponseStringLike(value, &next.Timestamp); err != nil {
-			return fmt.Errorf("timestamp: %w", err)
-		}
-	}
-	if value, ok := raw["outcome"]; ok {
-		if err := unmarshalOrderResponseString(value, &next.Outcome); err != nil {
-			return fmt.Errorf("outcome: %w", err)
-		}
-	}
-
-	*o = next
 	return nil
 }
 

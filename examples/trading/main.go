@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/GoPolymarket/polymarket-go-sdk/pkg/clob/clobtypes"
 	"context"
 	"fmt"
 	"log"
@@ -9,14 +8,16 @@ import (
 	"os"
 	"time"
 
+	"github.com/GoPolymarket/polymarket-go-sdk/pkg/clob/clobtypes"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/shopspring/decimal"
 
 	polymarket "github.com/GoPolymarket/polymarket-go-sdk"
 	"github.com/GoPolymarket/polymarket-go-sdk/pkg/auth"
-	
-"github.com/GoPolymarket/polymarket-go-sdk/pkg/types"
+
+	"github.com/GoPolymarket/polymarket-go-sdk/pkg/types"
 )
 
 func main() {
@@ -68,6 +69,6 @@ func main() {
 		// It is expected to fail if API keys are invalid or funds missing, but we want to see if Signing worked
 		log.Printf("Order creation returned error (expected): %v", err)
 	} else {
-		fmt.Printf("Order Created! ID: %s\n", resp.ID)
+		fmt.Printf("Order Created! ID: %s\n", resp.OrderID)
 	}
 }

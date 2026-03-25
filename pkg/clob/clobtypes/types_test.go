@@ -471,8 +471,8 @@ func TestBalanceAllowanceRequest_JSON(t *testing.T) {
 func TestTradesResponse_JSON(t *testing.T) {
 	resp := TradesResponse{
 		Data: []Trade{
-			{ID: "trade1", Price: "0.5", Size: "100", Side: "BUY", Timestamp: 1234567890},
-			{ID: "trade2", Price: "0.6", Size: "200", Side: "SELL", Timestamp: 1234567900},
+			{ID: "trade1", Price: "0.5", Size: "100", Side: "BUY", MatchTime: "1234567890"},
+			{ID: "trade2", Price: "0.6", Size: "200", Side: "SELL", MatchTime: "1234567900"},
 		},
 		NextCursor: "cursor123",
 		Limit:      10,
@@ -620,146 +620,6 @@ func TestAPIKeyResponse_JSON(t *testing.T) {
 	}
 	if decoded.Passphrase != resp.Passphrase {
 		t.Errorf("Passphrase = %s, want %s", decoded.Passphrase, resp.Passphrase)
-	}
-}
-
-func TestOrderResponse_ExpandedFields(t *testing.T) {
-	raw := `{
-		"orderID": "order-123",
-		"status": "LIVE",
-		"asset_id": "0xabc",
-		"market": "0xdef",
-		"side": "BUY",
-		"price": "0.55",
-		"original_size": "100",
-		"size_matched": "50",
-		"owner": "0x111",
-		"maker_address": "0x222",
-		"order_type": "GTC",
-		"expiration": "0",
-		"created_at": "2024-01-01T00:00:00Z",
-		"timestamp": "1700000000",
-		"outcome": "Yes"
-	}`
-
-	var resp OrderResponse
-	if err := json.Unmarshal([]byte(raw), &resp); err != nil {
-		t.Fatalf("unmarshal failed: %v", err)
-	}
-	if resp.ID != "order-123" {
-		t.Errorf("ID = %s, want order-123", resp.ID)
-	}
-	if resp.AssetID != "0xabc" {
-		t.Errorf("AssetID = %s, want 0xabc", resp.AssetID)
-	}
-	if resp.Market != "0xdef" {
-		t.Errorf("Market = %s, want 0xdef", resp.Market)
-	}
-	if resp.Side != "BUY" {
-		t.Errorf("Side = %s, want BUY", resp.Side)
-	}
-	if resp.Price != "0.55" {
-		t.Errorf("Price = %s, want 0.55", resp.Price)
-	}
-	if resp.OriginalSize != "100" {
-		t.Errorf("OriginalSize = %s, want 100", resp.OriginalSize)
-	}
-	if resp.SizeMatched != "50" {
-		t.Errorf("SizeMatched = %s, want 50", resp.SizeMatched)
-	}
-	if resp.OrderType != "GTC" {
-		t.Errorf("OrderType = %s, want GTC", resp.OrderType)
-	}
-}
-
-func TestOrderResponse_FlexibleTimeFields(t *testing.T) {
-	raw := `{
-		"id": "order-123",
-		"expiration": 1700000002,
-		"created_at": 1700000000,
-		"timestamp": 1700000001
-	}`
-
-	var resp OrderResponse
-	if err := json.Unmarshal([]byte(raw), &resp); err != nil {
-		t.Fatalf("unmarshal failed: %v", err)
-	}
-	if resp.CreatedAt != "1700000000" {
-		t.Errorf("CreatedAt = %s, want 1700000000", resp.CreatedAt)
-	}
-	if resp.Timestamp != "1700000001" {
-		t.Errorf("Timestamp = %s, want 1700000001", resp.Timestamp)
-	}
-	if resp.Expiration != "1700000002" {
-		t.Errorf("Expiration = %s, want 1700000002", resp.Expiration)
-	}
-	if resp.ID != "order-123" {
-		t.Errorf("ID = %s, want order-123", resp.ID)
-	}
-}
-
-func TestOrderResponse_UnmarshalPreservesExistingFields(t *testing.T) {
-	resp := OrderResponse{
-		ID:         "existing-id",
-		Status:     "LIVE",
-		AssetID:    "0xabc",
-		CreatedAt:  "100",
-		Timestamp:  "101",
-		Expiration: "102",
-	}
-
-	if err := json.Unmarshal([]byte(`{"created_at":1700000000}`), &resp); err != nil {
-		t.Fatalf("unmarshal failed: %v", err)
-	}
-	if resp.ID != "existing-id" {
-		t.Errorf("ID = %s, want existing-id", resp.ID)
-	}
-	if resp.Status != "LIVE" {
-		t.Errorf("Status = %s, want LIVE", resp.Status)
-	}
-	if resp.AssetID != "0xabc" {
-		t.Errorf("AssetID = %s, want 0xabc", resp.AssetID)
-	}
-	if resp.CreatedAt != "1700000000" {
-		t.Errorf("CreatedAt = %s, want 1700000000", resp.CreatedAt)
-	}
-	if resp.Timestamp != "101" {
-		t.Errorf("Timestamp = %s, want 101", resp.Timestamp)
-	}
-	if resp.Expiration != "102" {
-		t.Errorf("Expiration = %s, want 102", resp.Expiration)
-	}
-
-	if err := json.Unmarshal([]byte(`null`), &resp); err != nil {
-		t.Fatalf("unmarshal null failed: %v", err)
-	}
-	if resp.ID != "existing-id" {
-		t.Errorf("ID after null = %s, want existing-id", resp.ID)
-	}
-
-	if err := json.Unmarshal([]byte(`{}`), &resp); err != nil {
-		t.Fatalf("unmarshal empty object failed: %v", err)
-	}
-	if resp.ID != "existing-id" {
-		t.Errorf("ID after empty object = %s, want existing-id", resp.ID)
-	}
-	if resp.CreatedAt != "1700000000" {
-		t.Errorf("CreatedAt after empty object = %s, want 1700000000", resp.CreatedAt)
-	}
-}
-
-func TestOrderResponse_OrderIDPrecedence(t *testing.T) {
-	raw := `{
-		"orderID": "primary-id",
-		"id": "fallback-id"
-	}`
-
-	var resp OrderResponse
-	if err := json.Unmarshal([]byte(raw), &resp); err != nil {
-		t.Fatalf("unmarshal failed: %v", err)
-	}
-	if resp.ID != "primary-id" {
-		t.Errorf("ID = %s, want primary-id", resp.ID)
 	}
 }
 

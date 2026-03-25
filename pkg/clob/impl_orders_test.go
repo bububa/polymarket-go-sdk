@@ -35,7 +35,7 @@ func TestOrderManagementMethods(t *testing.T) {
 			Owner:     "0xabc",
 		}
 		resp, err := client.PostOrder(ctx, order)
-		if err != nil || resp.ID != "o1" {
+		if err != nil || resp.OrderID != "o1" {
 			t.Errorf("PostOrder failed: %v", err)
 		}
 	})
@@ -142,7 +142,7 @@ func TestOrderManagementMethods(t *testing.T) {
 
 	t.Run("OrdersListNumericCreatedAt", func(t *testing.T) {
 		doer := &staticDoer{
-			responses: map[string]string{"/data/orders": `{"data":[{"orderID":"o1","created_at":1700000000,"timestamp":1700000001}],"next_cursor":"LTE="}`},
+			responses: map[string]string{"/orders": `{"data":[{"orderID":"o1","created_at":1700000000}],"next_cursor":"LTE="}`},
 		}
 		client := &clientImpl{
 			httpClient: transport.NewClient(doer, "http://example"),
@@ -156,9 +156,6 @@ func TestOrderManagementMethods(t *testing.T) {
 		}
 		if resp.Data[0].CreatedAt != "1700000000" {
 			t.Errorf("CreatedAt = %s, want 1700000000", resp.Data[0].CreatedAt)
-		}
-		if resp.Data[0].Timestamp != "1700000001" {
-			t.Errorf("Timestamp = %s, want 1700000001", resp.Data[0].Timestamp)
 		}
 	})
 

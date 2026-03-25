@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/GoPolymarket/polymarket-go-sdk/pkg/clob/clobtypes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -10,11 +9,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/GoPolymarket/polymarket-go-sdk/pkg/clob/clobtypes"
+
 	polymarket "github.com/GoPolymarket/polymarket-go-sdk"
 	"github.com/GoPolymarket/polymarket-go-sdk/pkg/auth"
 	"github.com/GoPolymarket/polymarket-go-sdk/pkg/clob"
-	
-"github.com/GoPolymarket/polymarket-go-sdk/pkg/gamma"
+
+	"github.com/GoPolymarket/polymarket-go-sdk/pkg/gamma"
 )
 
 func main() {
@@ -91,12 +92,11 @@ func main() {
 	if err != nil {
 		log.Printf("Order creation returned error (expected in demo): %v", err)
 	} else {
-		log.Printf("Order Created! ID: %s", resp.ID)
+		log.Printf("Order Created! ID: %s", resp.OrderID)
 	}
 
 	trades, err := builderClient.BuilderTrades(ctx, &clobtypes.BuilderTradesRequest{
-		Maker: signer.Address().Hex(),
-		Limit: 5,
+		Builder: signer.Address().Hex(),
 	})
 	if err != nil {
 		log.Printf("BuilderTrades failed: %v", err)
@@ -229,7 +229,7 @@ func parseClobTokenIDs(raw string) []string {
 		return ids
 	}
 
-	var anyIDs []interface{}
+	var anyIDs []any
 	if err := json.Unmarshal([]byte(raw), &anyIDs); err != nil {
 		return nil
 	}

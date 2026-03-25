@@ -188,12 +188,12 @@ func main() {
 				}))
 
 				results = append(results, runCheck(ctx, *timeout, "private.orders", false, func(ctx context.Context) error {
-					_, err := authClient.Orders(ctx, &clobtypes.OrdersRequest{Limit: 1})
+					_, err := authClient.Orders(ctx, &clobtypes.OrdersRequest{})
 					return err
 				}))
 
 				results = append(results, runCheck(ctx, *timeout, "private.trades", true, func(ctx context.Context) error {
-					_, err := authClient.Trades(ctx, &clobtypes.TradesRequest{Limit: 1})
+					_, err := authClient.Trades(ctx, &clobtypes.TradesRequest{})
 					return err
 				}))
 

@@ -73,9 +73,6 @@ func cursorFromOrdersRequest(req *clobtypes.OrdersRequest) string {
 	if req.NextCursor != "" {
 		return req.NextCursor
 	}
-	if req.Cursor != "" {
-		return req.Cursor
-	}
 	return clobtypes.InitialCursor
 }
 
@@ -86,8 +83,8 @@ func cursorFromTradesRequest(req *clobtypes.TradesRequest) string {
 	if req.NextCursor != "" {
 		return req.NextCursor
 	}
-	if req.Cursor != "" {
-		return req.Cursor
+	if req.NextCursor != "" {
+		return req.NextCursor
 	}
 	return clobtypes.InitialCursor
 }
@@ -99,8 +96,8 @@ func cursorFromBuilderTradesRequest(req *clobtypes.BuilderTradesRequest) string 
 	if req.NextCursor != "" {
 		return req.NextCursor
 	}
-	if req.Cursor != "" {
-		return req.Cursor
+	if req.NextCursor != "" {
+		return req.NextCursor
 	}
 	return clobtypes.InitialCursor
 }

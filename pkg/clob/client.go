@@ -47,11 +47,11 @@ type Client interface {
 	// -- High-level Helpers --
 
 	// CreateOrder builds, signs, and submits a new order to the exchange in one call.
-	CreateOrder(ctx context.Context, order *clobtypes.Order) (clobtypes.OrderResponse, error)
+	CreateOrder(ctx context.Context, order *clobtypes.Order) (clobtypes.PostOrderResponse, error)
 	// CreateOrderWithOptions is like CreateOrder but allows specifying advanced order options.
-	CreateOrderWithOptions(ctx context.Context, order *clobtypes.Order, opts *clobtypes.OrderOptions) (clobtypes.OrderResponse, error)
+	CreateOrderWithOptions(ctx context.Context, order *clobtypes.Order, opts *clobtypes.OrderOptions) (clobtypes.PostOrderResponse, error)
 	// CreateOrderFromSignable submits an order that has already been prepared as a SignableOrder.
-	CreateOrderFromSignable(ctx context.Context, order *clobtypes.SignableOrder) (clobtypes.OrderResponse, error)
+	CreateOrderFromSignable(ctx context.Context, order *clobtypes.SignableOrder) (clobtypes.PostOrderResponse, error)
 
 	// -- System Status --
 
@@ -130,7 +130,7 @@ type Client interface {
 	// -- Order & Trade Management --
 
 	// PostOrder submits a pre-signed order to the exchange.
-	PostOrder(ctx context.Context, req *clobtypes.SignedOrder) (clobtypes.OrderResponse, error)
+	PostOrder(ctx context.Context, req *clobtypes.SignedOrder) (clobtypes.PostOrderResponse, error)
 	// PostOrders submits multiple pre-signed orders in a single batch.
 	PostOrders(ctx context.Context, req *clobtypes.SignedOrders) (clobtypes.PostOrdersResponse, error)
 	// CancelOrder requests the cancellation of a single open order by its ID.
@@ -142,14 +142,14 @@ type Client interface {
 	// CancelMarketOrders requests the cancellation of all orders in a specific market.
 	CancelMarketOrders(ctx context.Context, req *clobtypes.CancelMarketOrdersRequest) (clobtypes.CancelMarketOrdersResponse, error)
 	// Order retrieves the current status and details of a specific order.
-	Order(ctx context.Context, id string) (clobtypes.OrderResponse, error)
+	Order(ctx context.Context, id string) (clobtypes.OrderInfo, error)
 	// Orders retrieves a paginated list of open orders for the authenticated account.
 	Orders(ctx context.Context, req *clobtypes.OrdersRequest) (clobtypes.OrdersResponse, error)
 	// Trades retrieves a paginated list of executed trades.
 	Trades(ctx context.Context, req *clobtypes.TradesRequest) (clobtypes.TradesResponse, error)
 
 	// OrdersAll automatically iterates through all pages to retrieve all open orders.
-	OrdersAll(ctx context.Context, req *clobtypes.OrdersRequest) ([]clobtypes.OrderResponse, error)
+	OrdersAll(ctx context.Context, req *clobtypes.OrdersRequest) ([]clobtypes.OrderInfo, error)
 	// TradesAll automatically iterates through all pages to retrieve all recent trades.
 	TradesAll(ctx context.Context, req *clobtypes.TradesRequest) ([]clobtypes.Trade, error)
 	// BuilderTradesAll automatically iterates through all pages to retrieve all trades attributed to a builder.

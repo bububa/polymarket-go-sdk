@@ -9,13 +9,13 @@ import (
 )
 
 type fakeCLOBClient struct {
-	createResp clobtypes.OrderResponse
+	createResp clobtypes.PostOrderResponse
 	createErr  error
 
 	cancelResp clobtypes.CancelResponse
 	cancelErr  error
 
-	orderResp clobtypes.OrderResponse
+	orderResp clobtypes.OrderInfo
 	orderErr  error
 
 	ordersResp clobtypes.OrdersResponse
@@ -27,7 +27,7 @@ type fakeCLOBClient struct {
 	gotOrdersReq   *clobtypes.OrdersRequest
 }
 
-func (f *fakeCLOBClient) CreateOrder(_ context.Context, order *clobtypes.Order) (clobtypes.OrderResponse, error) {
+func (f *fakeCLOBClient) CreateOrder(_ context.Context, order *clobtypes.Order) (clobtypes.PostOrderResponse, error) {
 	f.gotCreateOrder = order
 	return f.createResp, f.createErr
 }
@@ -37,7 +37,7 @@ func (f *fakeCLOBClient) CancelOrder(_ context.Context, req *clobtypes.CancelOrd
 	return f.cancelResp, f.cancelErr
 }
 
-func (f *fakeCLOBClient) Order(_ context.Context, id string) (clobtypes.OrderResponse, error) {
+func (f *fakeCLOBClient) Order(_ context.Context, id string) (clobtypes.OrderInfo, error) {
 	f.gotOrderID = id
 	return f.orderResp, f.orderErr
 }
@@ -68,7 +68,7 @@ func TestCLOBEnginePlaceRequiresOrder(t *testing.T) {
 
 func TestCLOBEnginePlaceCallsCreateOrder(t *testing.T) {
 	fake := &fakeCLOBClient{
-		createResp: clobtypes.OrderResponse{ID: "ord-1", Status: "live"},
+		createResp: clobtypes.PostOrderResponse{OrderID: "ord-1", Status: "live"},
 	}
 	engine, err := NewCLOBEngine(fake)
 	if err != nil {
@@ -90,8 +90,8 @@ func TestCLOBEnginePlaceCallsCreateOrder(t *testing.T) {
 	if fake.gotCreateOrder != order {
 		t.Fatalf("expected order pointer to be forwarded")
 	}
-	if resp.Order.ID != "ord-1" {
-		t.Fatalf("expected order id ord-1, got %q", resp.Order.ID)
+	if resp.Order.OrderID != "ord-1" {
+		t.Fatalf("expected order id ord-1, got %q", resp.Order.OrderID)
 	}
 	if resp.Attribution.Builder != "builder-a" || resp.Attribution.Funder != "0xabc" || resp.Attribution.Source != "pmx-gateway" {
 		t.Fatalf("expected normalized attribution passthrough, got %+v", resp.Attribution)
@@ -145,7 +145,7 @@ func TestCLOBEngineQueryRequiresOrderID(t *testing.T) {
 
 func TestCLOBEngineQueryCallsOrder(t *testing.T) {
 	fake := &fakeCLOBClient{
-		orderResp: clobtypes.OrderResponse{ID: "ord-2", Status: "matched"},
+		orderResp: clobtypes.OrderInfo{ID: "ord-2", Status: "matched"},
 	}
 	engine, err := NewCLOBEngine(fake)
 	if err != nil {
@@ -167,7 +167,7 @@ func TestCLOBEngineQueryCallsOrder(t *testing.T) {
 func TestCLOBEngineReplayCallsOrdersWithFilters(t *testing.T) {
 	fake := &fakeCLOBClient{
 		ordersResp: clobtypes.OrdersResponse{
-			Data:       []clobtypes.OrderResponse{{ID: "ord-1"}, {ID: "ord-2"}},
+			Data:       []clobtypes.OrderInfo{{ID: "ord-1"}, {ID: "ord-2"}},
 			Count:      2,
 			NextCursor: "cursor-2",
 		},
@@ -188,11 +188,8 @@ func TestCLOBEngineReplayCallsOrdersWithFilters(t *testing.T) {
 	if fake.gotOrdersReq == nil {
 		t.Fatalf("expected replay request to call Orders")
 	}
-	if fake.gotOrdersReq.Market != "market-1" || fake.gotOrdersReq.Cursor != "cursor-1" {
+	if fake.gotOrdersReq.Market != "market-1" || fake.gotOrdersReq.NextCursor != "cursor-1" {
 		t.Fatalf("unexpected replay request: %+v", fake.gotOrdersReq)
-	}
-	if fake.gotOrdersReq.Limit != defaultReplayLimit {
-		t.Fatalf("expected default limit %d, got %d", defaultReplayLimit, fake.gotOrdersReq.Limit)
 	}
 	if len(resp.Orders) != 2 || resp.NextCursor != "cursor-2" {
 		t.Fatalf("unexpected replay response: %+v", resp)

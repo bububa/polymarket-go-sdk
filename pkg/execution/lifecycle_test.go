@@ -44,7 +44,7 @@ func TestNormalizeLifecycleState(t *testing.T) {
 }
 
 func TestEventFromOrderResponse(t *testing.T) {
-	event, err := EventFromOrderResponse(clobtypes.OrderResponse{
+	event, err := EventFromOrderResponse(clobtypes.OrderInfo{
 		ID:     "ord-1",
 		Status: "live",
 	}, LifecycleSourceQuery)
@@ -66,7 +66,7 @@ func TestEventFromOrderResponse(t *testing.T) {
 }
 
 func TestEventFromOrderResponseRequiresOrderID(t *testing.T) {
-	_, err := EventFromOrderResponse(clobtypes.OrderResponse{
+	_, err := EventFromOrderResponse(clobtypes.OrderInfo{
 		Status: "filled",
 	}, LifecycleSourceReplay)
 	if err == nil {
